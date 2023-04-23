@@ -73,17 +73,18 @@ def generating(settings: dict):
     encoding_public_key(settings)
 
 
-    
+
 
 def encrypt_the_text(sym_key: bytes, settings: dict):
     cipher = blowfish.Cipher(sym_key)
     with open(settings['initial_file'], encoding='utf8') as f:
-        data = str.encode(f.read())
+        data = str.encode(f.read())#str
     with open(settings['initialization_vector'], 'r') as f:
-        iv = bytes(json.load(f))
+        iv = bytes(json.load(f))#bytes
     data_encrypted = b"".join(cipher.encrypt_cbc_cts(bytes(data), iv))
+    data_decrypted = b"".join(cipher.decrypt_cbc_cts(data_encrypted, iv))
+    data_decrypted = data_decrypted.decode('utf8')
     serialization_2_json(settings['encrypted_file'], data_encrypted)
-    #data_decrypted = data_decrypted.decode()
     
 
 def encrypting(settings: dict):
@@ -98,16 +99,29 @@ def encrypting(settings: dict):
     sym_key = secret_key.decrypt(sym_key_enc,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
     encrypt_the_text(sym_key, settings)
 
+def decrypt_the_text(sym_key: bytes, settings: dict):
+    cipher = blowfish.Cipher(sym_key)
+    with open(settings['encrypted_file']) as f:
+        data = bytes(json.load(f))
+    with open(settings['initialization_vector'], 'r') as f:
+        iv = bytes(json.load(f))
+    data_decrypted = b"".join(cipher.decrypt_cbc_cts(data, iv))
+    data_decrypted = data_decrypted.decode('utf8')
+    with open(settings['decrypted_file'], 'w', encoding='utf8') as f:
+        f.write(data_decrypted)
 
-def decrypting():
+
+def decrypting(settings):
+    sym_key_enc = ''
+    with open(settings['encrypted_symmetric_key'], 'r') as f:
+        sym_key_enc = bytes(json.load(f))
+
+    with open(settings['secret_key'], 'rb') as pem_in:
+        secret_bytes = pem_in.read()
+    secret_key = load_pem_private_key(secret_bytes,password=None,)
+    sym_key = secret_key.decrypt(sym_key_enc,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+    decrypt_the_text(sym_key, settings)
     pass
-
-
-
-
-
-
-
 
 
 def main():
@@ -138,7 +152,7 @@ def main():
         if args.encryption:
             encrypting(settings)
         else: 
-            decrypting()
+            decrypting(settings)
 
 if __name__ == '__main__':
     main()
