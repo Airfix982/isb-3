@@ -32,6 +32,7 @@ def encoding_public_key(settings: dict)->None:
     iv = ''
     with open(settings['initialization_vector'], 'r') as f:
         iv = bytes(json.load(f))
+    print('initial vector key has been written to keys/initial_vetor.json\n')
     sym_key = ''
     with open(settings['symmetric_key'], 'r') as f:
        sym_key = bytes(json.load(f))
@@ -40,12 +41,14 @@ def encoding_public_key(settings: dict)->None:
     d_public_key = load_pem_public_key(public_bytes)
     c_sym_key = d_public_key.encrypt(sym_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
     serialization_2_json(settings['encrypted_symmetric_key'], c_sym_key)
+    print('public key has been encrypted and written to keys/encrypyed_symmetric_key.json\n')
 
 
 def generating(settings: dict):
     k_length = key_length()
     key = urandom(k_length)
     serialization_2_json(settings['symmetric_key'], key)
+    print('symmetric key has been created and written to keys/symmetric_key.json\n')
     keys = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
@@ -58,18 +61,16 @@ def generating(settings: dict):
     with open(public_pem, 'wb') as public_out:
             public_out.write(public_key.public_bytes(encoding=serialization.Encoding.PEM,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo))
-
+    print('public key has been created and written to keys/public_key.pem\n')
     # сериализация закрытого ключа в файл
     private_pem = settings['secret_key']
     with open(private_pem, 'wb') as private_out:
             private_out.write(private_key.private_bytes(encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption()))
+    print('private key has been created and written to keys/secret_key.pem\n')
             
     encoding_public_key(settings)
-
-
-
 
 def encrypt_the_text(sym_key: bytes, settings: dict):
     cipher = blowfish.Cipher(sym_key)
@@ -81,6 +82,7 @@ def encrypt_the_text(sym_key: bytes, settings: dict):
     data_decrypted = b"".join(cipher.decrypt_cbc_cts(data_encrypted, iv))
     data_decrypted = data_decrypted.decode('utf8')
     serialization_2_json(settings['encrypted_file'], data_encrypted)
+    print('the text has been encrypted and written to texts/encrypyed_file.json\n')
     
 
 def encrypting(settings: dict):
@@ -105,6 +107,7 @@ def decrypt_the_text(sym_key: bytes, settings: dict):
     data_decrypted = data_decrypted.decode('utf8')
     with open(settings['decrypted_file'], 'w', encoding='utf8') as f:
         f.write(data_decrypted)
+    print('encrypted text has been decrypted and written to texts/decrypted_file.txt\n')
 
 
 def decrypting(settings):
@@ -117,7 +120,6 @@ def decrypting(settings):
     secret_key = load_pem_private_key(secret_bytes,password=None,)
     sym_key = secret_key.decrypt(sym_key_enc,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
     decrypt_the_text(sym_key, settings)
-    pass
 
 
 def main():
