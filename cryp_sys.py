@@ -32,11 +32,9 @@ def encoding_public_key(settings: dict)->None:
     iv = ''
     with open(settings['initialization_vector'], 'r') as f:
         iv = bytes(json.load(f))
-
     sym_key = ''
     with open(settings['symmetric_key'], 'r') as f:
        sym_key = bytes(json.load(f))
-
     with open(settings['public_key'], 'rb') as pem_in:
         public_bytes = pem_in.read()
     d_public_key = load_pem_public_key(public_bytes)
@@ -45,11 +43,9 @@ def encoding_public_key(settings: dict)->None:
 
 
 def generating(settings: dict):
-    print('gen')
     k_length = key_length()
-    key = urandom(k_length * 8)
+    key = urandom(k_length)
     serialization_2_json(settings['symmetric_key'], key)
-
     keys = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048

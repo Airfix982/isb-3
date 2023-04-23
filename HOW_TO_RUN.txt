@@ -1,0 +1,4 @@
+First, run in console 'python cryp_sys.py -gen' to generate keys
+Then, run 'python cryp_sys.py -enc' to encrypt the text(it already exists in texts/initial_file.txt)
+Finally, run 'python cryp_sys.py -dec' to decrypt encrypted text
+Run 'python cryp_sys.py --help' to get prompts
