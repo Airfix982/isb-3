@@ -1,12 +1,12 @@
 import json
 import logging
 
-def serialization_to_json(file_name: str, text)->None:
+def serialization_to_json(file_name: str, text: bytes)->None:
      """
     Сереализует str в json файл
     Args:
         file_name (str): имя файла, куда сериализуется текст
-        text: объект не пользовательского класса для сереализации
+        text (bytes): объект не пользовательского класса для сереализации
     Return:
      
      """
