@@ -11,6 +11,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument('-s','--settings_path',default='files\\settings.json',help='Путь к json файлу с путями, default = files\\settings.json', action='store') 
+    parser.add_argument('-l','--key_length',default=5,help='Длина ключа симметричного шифрования, дефолт 5 байт', action='store') 
     group = parser.add_mutually_exclusive_group(required = True)
     group.add_argument('-gen','--generation',help='Запускает режим генерации ключей', action='store_true')
     group.add_argument('-enc','--encryption',help='Запускает режим шифрования', action='store_true')
@@ -19,6 +20,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
     settings_path = args.settings_path
+    k_len = int(args.key_length)
     try:
         with open(settings_path) as jf:
             settings = json.load(jf)
@@ -31,7 +33,7 @@ if __name__ == '__main__':
         case (True, False, False):
             with tqdm(total=4) as pbar:
                 logging.info('Generation keys\n')
-                generate_keys(settings, pbar)
+                generate_keys(settings, k_len, pbar)
         case (False, True, False):
             with tqdm(total=2) as pbar:
                 logging.info('Encryption the file\n')

@@ -8,35 +8,18 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
 
-
-def key_length()->int:
-    """
-    Запрашивает у пользователя длину ключа шифрования для
-    алгоритма симметричного шифрования
-    Args:
-        
-    Return:
-     len (int): длина ключа симметричного шифрования
-    """
-    len = 0
-    while(int(len) < 5 or int(len) > 56):
-            print('\nВведите длину ключа в байтах: от 5 до 56\n')
-            len = (int)(input())
-            return len
-    
-
-def generate_keys( settings: dict, pbar )->None:
+def generate_keys( settings: dict, k_length: int, pbar )->None:
     """
     Генерирует ключи и сереализует их
     Args:
         settings (dict): пути к файлам
+        k_length (int): длина ключа симмтеричного шифрования
         pbar: параметр для показа прогресса
     Return:
     
     """
     
     pbar.set_description('generating symmetric key')    
-    k_length = key_length()
     symmetric_key = urandom( k_length )
     pbar.update(1)
     pbar.set_description('generating asymmetric keys')    
@@ -64,7 +47,6 @@ def generate_keys( settings: dict, pbar )->None:
           logging.error(f"{settings['secret_key']} not found")
     pbar.update(1) 
     pbar.set_description('writing encrypted symmetric key')
-    print(symmetric_key)
     sym_enc_key = public_key.encrypt(symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),label=None))
     serialization_to_json( settings['symmetric_key'], sym_enc_key )

@@ -28,7 +28,6 @@ def encryption ( settings: dict, pbar )->None:
     private_key = load_pem_private_key(private_bytes,password=None,)
     symmetric_key = private_key.decrypt(sym_key_bytes,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                                    algorithm=hashes.SHA256(),label=None))
-    print(symmetric_key)
     pbar.update(1)
     pbar.set_description('encrypting and saving the text')
     algorithm = algorithms.Blowfish(symmetric_key)
